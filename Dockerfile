@@ -38,11 +38,6 @@ COPY library/k8s_status.py /usr/share/ansible/openshift/
 
 RUN /usr/local/bin/user_setup
 
-# Ensure directory permissions are properly set
-RUN mkdir -p ${HOME}/.ansible/tmp \
- && chown -R ${USER_UID}:0 ${HOME} \
- && chmod -R ug+rwx ${HOME}
-
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint"]
 
 USER ${USER_UID}
