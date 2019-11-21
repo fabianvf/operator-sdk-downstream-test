@@ -40,7 +40,9 @@ github.com/coreos/prometheus-operator/pkg/apis/monitoring
 github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1
 github.com/coreos/prometheus-operator/pkg/client/versioned/scheme
 github.com/coreos/prometheus-operator/pkg/client/versioned/typed/monitoring/v1
-# github.com/cyphar/filepath-securejoin v0.0.0-20170720062807-ae69057f2299
+# github.com/cpuguy83/go-md2man v1.0.10
+github.com/cpuguy83/go-md2man/md2man
+# github.com/cyphar/filepath-securejoin v0.2.2
 github.com/cyphar/filepath-securejoin
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
@@ -52,7 +54,7 @@ github.com/docker/distribution/reference
 # github.com/docker/docker v0.7.3-0.20190409004836-2e1cfbca03da
 github.com/docker/docker/pkg/term
 github.com/docker/docker/pkg/term/windows
-# github.com/docker/spdystream v0.0.0-20160310174837-449fdfce4d96
+# github.com/docker/spdystream v0.0.0-20181023171402-6480d4af844c
 github.com/docker/spdystream
 github.com/docker/spdystream/spdy
 # github.com/emicklei/go-restful v2.9.3+incompatible
@@ -261,6 +263,7 @@ github.com/spf13/afero/mem
 github.com/spf13/cast
 # github.com/spf13/cobra v0.0.5
 github.com/spf13/cobra
+github.com/spf13/cobra/doc
 # github.com/spf13/jwalterweatherman v1.0.0
 github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.3
@@ -901,7 +904,6 @@ sigs.k8s.io/controller-runtime/pkg/client/apiutil
 sigs.k8s.io/controller-runtime/pkg/client/config
 sigs.k8s.io/controller-runtime/pkg/client/fake
 sigs.k8s.io/controller-runtime/pkg/controller
-sigs.k8s.io/controller-runtime/pkg/controller/controllerutil
 sigs.k8s.io/controller-runtime/pkg/event
 sigs.k8s.io/controller-runtime/pkg/handler
 sigs.k8s.io/controller-runtime/pkg/internal/controller
