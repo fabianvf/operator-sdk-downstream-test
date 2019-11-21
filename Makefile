@@ -54,9 +54,11 @@ tidy: ## Update dependencies
 clean: ## Clean up the build artifacts
 	$(Q)rm -rf build
 
-cli-doc: ## Generate CLI Documentation
+cli-doc: ## Generate CLI Documentation break merege here
 	./hack/doc/gen_cli_doc.sh
 
+
+adding new stuff:
 # Build/install/release the SDK.
 .PHONY: install release_builds release
 
