@@ -1,5 +1,4 @@
 # Folders
-vendor
 _obj
 _test
 _output
@@ -93,11 +92,9 @@ tags
 # End of https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
 
 # Build artifacts
-/build
 test/ansible-operator/ansible-operator
 test/helm-operator/helm-operator
 images/scorecard-proxy/scorecard-proxy
 
 # Test artifacts
 pkg/ansible/runner/testdata/valid.yaml
-/bin
