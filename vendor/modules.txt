@@ -342,7 +342,7 @@ github.com/opencontainers/image-spec/specs-go/v1
 # github.com/opencontainers/runc v1.0.0-rc2.0.20190611121236-6cc515888830
 github.com/opencontainers/runc/libcontainer/system
 github.com/opencontainers/runc/libcontainer/user
-# github.com/operator-framework/api v0.0.0-20191127212340-9066a6e95573
+# github.com/operator-framework/api v0.0.0-20200120235816-80fd2f1a09c9
 github.com/operator-framework/api/pkg/internal
 github.com/operator-framework/api/pkg/manifests
 github.com/operator-framework/api/pkg/validation
@@ -361,7 +361,7 @@ github.com/operator-framework/operator-lifecycle-manager/pkg/lib/operatorclient
 github.com/operator-framework/operator-lifecycle-manager/pkg/lib/operatorlister
 github.com/operator-framework/operator-lifecycle-manager/pkg/lib/ownerutil
 github.com/operator-framework/operator-lifecycle-manager/pkg/lib/version
-# github.com/operator-framework/operator-registry v1.5.3
+# github.com/operator-framework/operator-registry v1.5.7-0.20200121213444-d8e2ec52c19a
 github.com/operator-framework/operator-registry/pkg/api
 github.com/operator-framework/operator-registry/pkg/containertools
 github.com/operator-framework/operator-registry/pkg/lib/bundle

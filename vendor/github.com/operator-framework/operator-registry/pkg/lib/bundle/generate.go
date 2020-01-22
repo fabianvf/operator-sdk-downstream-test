@@ -10,6 +10,10 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"gopkg.in/yaml.v2"
+	"helm.sh/helm/v3/pkg/chartutil"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
 const (
@@ -43,7 +47,10 @@ type AnnotationMetadata struct {
 // @channelDefault: The default channel for the bundle image
 // @overwrite: Boolean flag to enable overwriting annotations.yaml locally if existed
 func GenerateFunc(directory, packageName, channels, channelDefault string, overwrite bool) error {
-	var mediaType string
+	_, err := os.Stat(directory)
+	if os.IsNotExist(err) {
+		return err
+	}
 
 	// Determine mediaType
 	mediaType, err := GetMediaType(directory)
@@ -77,7 +84,7 @@ func GenerateFunc(directory, packageName, channels, channelDefault string, overw
 	log.Info("Building Dockerfile")
 
 	// Generate Dockerfile
-	content, err = GenerateDockerfile(directory, mediaType, ManifestsDir, MetadataDir, packageName, channels, channelDefault)
+	content, err = GenerateDockerfile(mediaType, ManifestsDir, MetadataDir, packageName, channels, channelDefault)
 	if err != nil {
 		return err
 	}
@@ -90,34 +97,51 @@ func GenerateFunc(directory, packageName, channels, channelDefault string, overw
 	return nil
 }
 
-// GenerateFunc determines mediatype from files (yaml) in given directory
+// GetMediaType determines mediatype from files (yaml) in given directory
 // Currently able to detect helm chart, registry+v1 (CSV) and plain k8s resources
 // such as CRD.
 func GetMediaType(directory string) (string, error) {
 	var files []string
+	k8sFiles := make(map[string]*unstructured.Unstructured)
 
 	// Read all file names in directory
 	items, _ := ioutil.ReadDir(directory)
 	for _, item := range items {
 		if item.IsDir() {
 			continue
-		} else {
-			files = append(files, item.Name())
+		}
+
+		files = append(files, item.Name())
+
+		fileWithPath := filepath.Join(directory, item.Name())
+		fileBlob, err := ioutil.ReadFile(fileWithPath)
+		if err != nil {
+			return "", fmt.Errorf("Unable to read file %s in bundle", fileWithPath)
+		}
+
+		dec := k8syaml.NewYAMLOrJSONDecoder(strings.NewReader(string(fileBlob)), 10)
+		unst := &unstructured.Unstructured{}
+		if err := dec.Decode(unst); err == nil {
+			k8sFiles[item.Name()] = unst
 		}
 	}
 
 	if len(files) == 0 {
-		return "", fmt.Errorf("The directory %s contains no files", directory)
+		return "", fmt.Errorf("The directory %s contains no yaml files", directory)
 	}
 
-	// Validate the file names to determine media type
-	for _, file := range files {
-		if file == "Chart.yaml" {
-			return HelmType, nil
-		} else if strings.HasSuffix(file, "clusterserviceversion.yaml") {
-			return RegistryV1Type, nil
-		} else {
-			continue
+	// Validate if bundle is helm chart type
+	if _, err := chartutil.IsChartDir(directory); err == nil {
+		return HelmType, nil
+	}
+
+	// Validate the files to determine media type
+	for _, fileName := range files {
+		// Check if one of the k8s files is a CSV
+		if k8sFile, ok := k8sFiles[fileName]; ok {
+			if k8sFile.GetObjectKind().GroupVersionKind().Kind == "ClusterServiceVersion" {
+				return RegistryV1Type, nil
+			}
 		}
 	}
 
@@ -164,7 +188,7 @@ func ValidateAnnotations(existing, expected []byte) error {
 	return nil
 }
 
-// ValidateAnnotations validates provided default channel to ensure it exists in
+// ValidateChannelDefault validates provided default channel to ensure it exists in
 // provided channel list.
 func ValidateChannelDefault(channels, channelDefault string) (string, error) {
 	var chanDefault string
@@ -226,7 +250,7 @@ func GenerateAnnotations(mediaType, manifests, metadata, packageName, channels, 
 // GenerateDockerfile builds Dockerfile with mediatype, manifests &
 // metadata directories in bundle image, package name, channels and default
 // channels information in LABEL section.
-func GenerateDockerfile(directory, mediaType, manifests, metadata, packageName, channels, channelDefault string) ([]byte, error) {
+func GenerateDockerfile(mediaType, manifests, metadata, packageName, channels, channelDefault string) ([]byte, error) {
 	var fileContent string
 
 	chanDefault, err := ValidateChannelDefault(channels, channelDefault)
@@ -246,8 +270,8 @@ func GenerateDockerfile(directory, mediaType, manifests, metadata, packageName, 
 	fileContent += fmt.Sprintf("LABEL %s=%s\n\n", ChannelDefaultLabel, chanDefault)
 
 	// CONTENT
-	fileContent += fmt.Sprintf("ADD %s %s\n", filepath.Join(directory, "*.yaml"), "/manifests/")
-	fileContent += fmt.Sprintf("ADD %s %s%s\n", filepath.Join(directory, metadata, AnnotationsFile), "/metadata/", AnnotationsFile)
+	fileContent += fmt.Sprintf("COPY %s %s\n", "/*.yaml", "/manifests/")
+	fileContent += fmt.Sprintf("COPY %s %s%s\n", filepath.Join("/", metadata, AnnotationsFile), "/metadata/", AnnotationsFile)
 
 	return []byte(fileContent), nil
 }
